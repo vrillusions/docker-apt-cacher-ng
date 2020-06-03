@@ -32,8 +32,9 @@ elif [[ ${1} == apt-cacher-ng || ${1} == $(command -v apt-cacher-ng) ]]; then
   set --
 fi
 
-# default behaviour is to launch apt-cacher-ng
+# default behaviour is to launch apt-cacher-ng and cron.sh
 if [[ -z ${1} ]]; then
+  exec start-stop-daemon --start --exec $(which cron) -- -f -l 1 -L /dev/stdout &
   exec start-stop-daemon --start --chuid ${APT_CACHER_NG_USER}:${APT_CACHER_NG_USER} \
     --exec "$(command -v apt-cacher-ng)" -- -c /etc/apt-cacher-ng ${EXTRA_ARGS}
 else
