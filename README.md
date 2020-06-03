@@ -73,7 +73,7 @@ docker run --name apt-cacher-ng --init -d --restart=always \
   sameersbn/apt-cacher-ng:3.3-20200524
 ```
 
-*Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/)*
+*Alternatively, you can use the sample [docker-compose.yml](docker-compose.yml) file to start the container using [Docker Compose](https://docs.docker.com/compose/) and includes the cron service to run [Cache expiry](#cache-expiry)*
 
 ## Command-line arguments
 
@@ -116,6 +116,15 @@ services:
     volumes:
       - apt-cacher-ng:/var/cache/apt-cacher-ng
     restart: always
+  cron:
+    restart: always
+    image: sameersbn/apt-cacher-ng
+    init: true
+    healthcheck:
+      disable: true
+    entrypoint: /sbin/entrypoint_cron.sh
+    volumes:
+      - apt-cacher-ng:/var/cache/apt-cacher-ng
 
 volumes:
   apt-cacher-ng:
@@ -165,6 +174,16 @@ docker run --name apt-cacher-ng --init -it --rm \
 ```
 
 The same can also be achieved on a running instance by visiting the url http://localhost:3142/acng-report.html in the web browser and selecting the **Start Scan and/or Expiration** option.
+
+There is also an entrypoint created to run cron from within another container. This is intended for [Docker Compose](#docker-compose) but can also be done using docker.
+
+```bash
+docker run --name apt-cacher-ng_cron --init -d --restart=always \
+  --volume /srv/docker/apt-cacher-ng:/var/cache/apt-cacher-ng \
+  --no-healthcheck \
+  --entrypoint /sbin/entrypoint_cron.sh \
+  sameersbn/apt-cacher-ng:3.3-20200524
+```
 
 ## Upgrading
 

@@ -2,10 +2,18 @@ version: '2.2'
 
 services:
   apt-cacher-ng:
-    restart: always
     image: sameersbn/apt-cacher-ng:3.3-20200524
-    init: true
     ports:
-    - "3142:3142"
+      - "3142:3142"
+    restart: always
     volumes:
-    - /srv/docker/apt-cacher-ng:/var/cache/apt-cacher-ng
+      - /srv/docker/apt-cacher-ng:/var/cache/apt-cacher-ng
+  cron:
+    image: sameersbn/apt-cacher-ng:3.3-20200524
+    entrypoint: /sbin/entrypoint_cron.sh
+    init: true
+    healthcheck:
+      disable: true
+    restart: always
+    volumes:
+      - /srv/docker/apt-cacher-ng:/var/cache/apt-cacher-ng
